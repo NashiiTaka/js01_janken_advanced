@@ -87,7 +87,7 @@ dl.dl_table {
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
-    width: 100%;
+    width: 200px;
     border: 1px solid #ccc;
     border-bottom: none;
 }
@@ -97,12 +97,14 @@ dl.dl_table dt {
     width: 75px;
     border-right: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+    text-align: center;
 }
 
 dl.dl_table dd {
     background: #fff;
     width: calc(100% - 75px);
     border-bottom: 1px solid #ccc;
+    text-align: center;
 }
 
 .taisen-table {

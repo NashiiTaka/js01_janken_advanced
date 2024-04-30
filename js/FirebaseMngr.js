@@ -89,11 +89,7 @@ class FirebaseMngr {
         }
         set(this.#dbRefRounds, newRound);
 
-        this.#dbRefBatsuGame = ref(this.#db, "janken_batsu_game/0");
-        const newBatsuGame = {
-            round: this.#round
-        }
-        set(this.#dbRefRounds, newRound);
+        this.#dbRefBatsuGame = ref(this.#db, "janken_batsu_game");
     }
 
     /**
@@ -200,11 +196,12 @@ class FirebaseMngr {
     }
 
     /**
-     * 罰ゲームを更新する。
+     * 罰ゲームを更新する。updateイベントが拾いもれるケースがあったので、remove, setでaddで拾ってみる。
      * @param {string} batsuGame 罰ゲーム
      */
-    updateBatsuGame(batsuGame){
-        update(this.#dbRefBatsuGame, { batsuGame: batsuGame });
+    replaceBatsuGame(batsuGame){
+        remove(this.#dbRefBatsuGame);
+        set(this.#dbRefBatsuGame, { batsuGame: batsuGame });
     }
 }
 

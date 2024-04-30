@@ -23,11 +23,12 @@ $(`#btnRegisterName`).on('click', () => {
 
 // 罰ゲーム確定時の処理 : 全員に罰ゲーム内容を共有する。
 $('#btnBatsuKakutei').on('click', () => {
-  fb.updateBatsuGame($('#batsu-game').val());
+  fb.replaceBatsuGame($('#batsu-game').val());
 });
 
-// 罰ゲーム更新時の処理
-fb.setOnChildChanged(fb.dbRefBatsuGame, (data) => {
+// 罰ゲーム更新時の処理 
+fb.setOnChildAdded(fb.dbRefBatsuGame, (data) => {
+  console.log('×ゲーム変更');
   $('#batsu-game').val(data.val());
 });
 
