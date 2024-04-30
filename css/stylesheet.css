@@ -1,0 +1,223 @@
+* {
+    color: #222222;
+    box-sizing: border-box;
+    line-height: 2;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+header h1{
+    font-size: 48px;
+    padding: 10px;
+}
+
+main {
+    border-bottom: 1px solid #ccc;
+    margin-top: 10px;
+}
+
+#batsu-game{
+    width: 60%;
+}
+
+ul {
+    padding: 0;
+    border-top: 1px solid #000000;
+    display: table;
+    /* 定義 */
+    table-layout: fixed;
+    width: 100%;
+}
+
+li {
+    text-align: center;
+    list-style-type: none;
+    border: 1px solid #666;
+    background-color: #FFF;
+    display: table-cell;
+    /* 定義 */
+    cursor: pointer;
+}
+
+.choice:hover {
+    background: #0066CC;
+    color: #fff;
+}
+
+.wrapper-super {
+    width: 80%;
+    margin: 0 auto;
+}
+
+.control {
+    display: flex;
+}
+
+.current-info {
+    width: 50%;
+    padding: 30px;
+}
+
+.choices-wrapper{
+    width: 50%;
+    position: relative;
+}
+
+.choices {
+
+}
+
+.chosen{
+    background: #f57702;
+    color: #fff;
+}
+
+dl.dl_table {
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-bottom: none;
+}
+
+dl.dl_table dt {
+    background: #f5f5f5;
+    width: 75px;
+    border-right: 1px solid #ccc;
+    border-bottom: 1px solid #ccc;
+}
+
+dl.dl_table dd {
+    background: #fff;
+    width: calc(100% - 75px);
+    border-bottom: 1px solid #ccc;
+}
+
+.taisen-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    line-height: 0.4;
+}
+
+.taisen-table th:first-child {
+    border-radius: 5px 0 0 0;
+}
+
+.taisen-table th:last-child {
+    border-radius: 0 5px 0 0;
+    border-right: 1px solid #3c6690;
+}
+
+.taisen-table th {
+    text-align: center;
+    color: white;
+    background: linear-gradient(#829ebc, #225588);
+    border-left: 1px solid #3c6690;
+    border-top: 1px solid #3c6690;
+    border-bottom: 1px solid #3c6690;
+    box-shadow: 0px 1px 1px rgba(255, 255, 255, 0.3) inset;
+    padding: 10px;
+    vertical-align: middle;
+}
+
+.taisen-table td {
+    text-align: center;
+    border-left: 1px solid #a8b7c5;
+    border-bottom: 1px solid #a8b7c5;
+    border-top: none;
+    box-shadow: 0px -3px 5px 1px #eee inset;
+    padding: 10px;
+    vertical-align: middle;
+}
+
+td.td-no{
+    border-left: 4px solid #a8b7c5;
+}
+
+.taisen-top-row td:last-child , .taisen-bottom-row td:last-child{
+    border-right: 4px solid #a8b7c5;
+}
+
+td.bottom-cell{
+    border-bottom: 4px solid #a8b7c5;
+}
+
+.taisen-all-top-row td:first-child{
+    border-radius: 0 0 0 10px;
+}
+
+.taisen-all-bottom-row td:last-child {
+    border-radius: 0 0 10px 0;
+}
+
+.hide{
+    display: none;
+}
+
+.prompt{
+    color: red;
+}
+
+.info{
+    color: blue;
+}
+
+.progress{
+    position: absolute;
+    background-color: yellow;
+    font-size: 25px;    
+
+    width: 90%;
+    text-align: center;
+    height: 80px;
+    line-height:80px;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom :0;
+    margin:  auto;
+}
+
+.looser{
+    background-color: #AAA;
+}
+
+.star {
+    position: fixed;
+    color: gold;
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    top: -50px; /* 初期位置を画面外に設定 */
+}
+
+.skull {
+    position: fixed;
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    top: -50px; /* 初期位置を画面外に設定 */
+}
+
+@keyframes fall {
+    0% { opacity: 1; }
+    100% { top: 110vh; opacity: 0; } /* 画面の縦の高さを超える位置まで移動 */
+}
+
+footer {
+    background-color: #fff;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}

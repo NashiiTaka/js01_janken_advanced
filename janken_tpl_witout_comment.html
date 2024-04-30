@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="js/jquery-2.1.3.min.js"></script>
+  <link rel="stylesheet" href="css/sample.css">
+  <title>じゃんけん</title>
+</head>
+
+<body>
+  <a href="janken_tpl.html">初回お題に対するコーディング例、解説コメントつき</a>
+  コメントなし
+  <a href="janken_tpl_ex.html">pvp</a>
+
+  <header>
+    <h1>じゃんけん</h1>
+  </header>
+
+  <main>
+    <ul>
+      <li class="choice" id="gu_btn" value="0">グー</li>
+      <li class="choice" id="par_btn" value="1">パー</li>
+      <li class="choice" id="cho_btn" value="2">チョキ</li>
+    </ul>
+    <div>コンピュータの出した手は？「<span id="pc_hands">なに？</span>」</div>
+    <div id="judgment">勝ち</div>
+  </main>
+
+  <footer></footer>
+  <script>
+    //じゃんけん用のSCRIPTを書いてください
+    const jknChoice = [
+      { disp: "グー", winVS: "チョキ" },
+      { disp: "パー", winVS: "グー" },
+      { disp: "チョキ", winVS: "パー" }
+    ];
+
+    $('.choice').on('click', (e) => {
+      const rnd = Math.floor(Math.random() * 3);
+      const cpuChoice = jknChoice[rnd];
+      const playerChoice = jknChoice[parseInt(e.target.value)];
+
+      $('#pc_hands').html(cpuChoice.disp);
+
+      let ret = "";
+      if (cpuChoice == playerChoice) {
+        ret = "あいこ";
+      } else {
+        ret = playerChoice.winVS == cpuChoice.disp  ? "勝ち" : "負け";
+      }
+      $('#judgment').html(ret);w
+    });
+  </script>
+</body>
+
+</html>
