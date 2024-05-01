@@ -2,7 +2,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
 // TODO: Add SDKs for Firebase products that you want to use
-import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved, update, onChildChanged, onValue }
+import { getDatabase, ref, push, set, onChildAdded, remove, onChildRemoved, update, onChildChanged, onValue, orderByChild, query, equalTo }
     from "https://www.gstatic.com/firebasejs/10.11.0/firebase-database.js";
 // https://firebase.google.com/docs/web/setup#available-libraries
 // Your web app's Firebase configuration
@@ -22,18 +22,20 @@ const app = initializeApp(firebaseConfig);
  * Firebaseとの接続を管理する。
  */
 class FirebaseMngr {
+    // メンバ変数の定義
     #db = null;
     #dbRefPlayers = null;
     #dbRefTaisen = null;
     #dbRefChoice = null;
     #dbRefRounds = null;
     #dbRefBatsuGame = null;
-    #round = null;
 
+    // コンストラクタ
     constructor() {
         this.initialize();
     }
 
+    // データベースリファレンス
     /**
      * データベース本体を取得
      */
@@ -60,20 +62,6 @@ class FirebaseMngr {
     get dbRefBatsuGame() { return this.#dbRefBatsuGame; }
 
     /**
-     * 新しいユーザーを追加する。
-     * @param {string} name 
-     * @param {number} round 
-     */
-    addPlayer(name, round, originalKeyPlayer) {
-        const newPostRef = push(this.dbRefPlayers);
-        set(newPostRef, {
-            name: name,
-            round: round,
-            originalKeyPlayer: originalKeyPlayer || newPostRef.key
-        });
-    }
-
-    /**
      * データの初期化を行う
      */
     initialize() {
@@ -83,9 +71,8 @@ class FirebaseMngr {
         this.#dbRefTaisen = ref(this.#db, "janken_taisen");
         this.#dbRefChoice = ref(this.#db, "janken_choice");
         this.#dbRefRounds = ref(this.#db, "janken_rounds/0");
-        this.#round = 0;
         const newRound = {
-            round: this.#round
+            round: 0
         }
         set(this.#dbRefRounds, newRound);
 
@@ -104,7 +91,40 @@ class FirebaseMngr {
     }
 
     /**
+     * ラウンドを更新する
+     */
+    updateRound(round) {
+        update(this.dbRefRounds, { round: round });
+    }
+
+    /**
+     * 罰ゲームを更新する。
+     * updateイベントが拾いもれるケースがあったので、remove, setでaddで拾ってみる。
+     * ラウンドのonChangeは取れているようなのでなんでだろう。
+     * @param {string} batsuGame 罰ゲーム
+     */
+    replaceBatsuGame(batsuGame) {
+        remove(this.#dbRefBatsuGame);
+        set(this.#dbRefBatsuGame, { batsuGame: batsuGame });
+    }
+
+    /**
+     * 新しいユーザーを追加する。
+     * @param {string} name 
+     * @param {number} round 
+     */
+    addPlayer(name, round, originalKeyPlayer) {
+        const newPostRef = push(this.dbRefPlayers);
+        set(newPostRef, {
+            name: name,
+            round: round,
+            originalKeyPlayer: originalKeyPlayer || newPostRef.key
+        });
+    }
+
+    /**
      * ラウンド別の進出ユーザー情報を取得する。
+     * Promiseオブジェクトを返却するため、呼び出し元ではawaitが必要。
      * @param {number} roundNo 
      * @returns [{key, val()}] ユーザー情報の配列。0件の場合も配列を返却
      */
@@ -127,9 +147,11 @@ class FirebaseMngr {
 
     /**
      * 対戦を追加する。
-     * @param {*} nameA 1人目のプレイヤー
-     * @param {*} nameB 2人目のプレイヤー
-     * @param {*} roundNo ラウンド数 
+     * @param {string} originalKeyPlayerA 1人目のプレイヤー
+     * @param {string} namePlayerA 1人目のプレイヤーの名前
+     * @param {string} originalKeyPlayerB 2人目のプレイヤー
+     * @param {string} namePlayerB 2人目のプレイヤーの名前
+     * @param {number} roundNo ラウンド数
      */
     addTaisen(originalKeyPlayerA, namePlayerA, originalKeyPlayerB, namePlayerB, roundNo) {
         const newTaisenId = push(this.dbRefTaisen);
@@ -139,10 +161,52 @@ class FirebaseMngr {
             originalKeyPlayerB: originalKeyPlayerB,
             namePlayerB: namePlayerB,
             keyWinnerPlayer: null,
+            unexecutedTaisen: false,
             round: roundNo
         }
         set(newTaisenId, newTaisen);
     }
+
+    /**
+     * 対戦データを更新する。
+     * @param {*} keyTaisen 対戦データのキー
+     * @param {*} toObj 更新内容
+     */
+    updateTaisen(keyTaisen, toObj) {
+        const update_item = ref(this.db, "janken_taisen/" + keyTaisen);
+        update(update_item, toObj)
+    }
+
+    async updateTaisenUnexecuted(round) {
+        const taisens = await new Promise((resolve) => {
+            // keyWinnerPlayerがnullのデータだけを抽出する
+            // 特定の項目をwhereの条件にする場合は、orderByChildでその項目を指定する必要があるらしい。
+            // 複数項目の条件設定はできなそう。複雑なクエリは難しい。ここでもラウンドと未決着の両方が必要だったがクエリで一気には指定できない。
+            // @see https://firebase.google.com/docs/database/web/lists-of-data?hl=ja&_gl=1*ak087r*_up*MQ..*_ga*MjA4NTY4NTc1OC4xNzE0NTE5Njg2*_ga_CW55HF8NVT*MTcxNDUxOTY4NS4xLjAuMTcxNDUxOTY4NS4wLjAuMA..
+            // GPT生成 エラー → const query = ref(this.db, "janken_taisen").orderByChild("keyWinnerPlayer").equalTo(null);
+            const q = query(this.dbRefTaisen, orderByChild("keyWinnerPlayer"), equalTo(null));
+            const ret = [];
+            onValue(q, (snapshot) => {
+                snapshot.forEach((childSnapshot) => {
+                    if(childSnapshot.val().round == round){
+                        ret.push(childSnapshot);
+                    }
+                });
+            });
+            // 作成したユーザ配列で非同期処理を完了させる。
+            resolve(ret);
+        }, {
+            // イマイチ意味がわかっていない。
+            onlyOnce: true
+        });
+
+        taisens.forEach((taisen) => {
+            this.updateTaisen(
+                taisen.key, 
+                { unexecutedTaisen: true }
+            );
+        });
+    };
 
     /**
      * データ追加時のイベントを設定する。
@@ -158,18 +222,8 @@ class FirebaseMngr {
      * @param {*} dfRef 監視対象のテーブル
      * @param {function} callBack イベントハンドラ
      */
-    setOnChildChanged(dfRef, callBack){
+    setOnChildChanged(dfRef, callBack) {
         onChildChanged(dfRef, callBack);
-    }
-
-    /**
-     * 対戦データを更新する。
-     * @param {*} keyTaisen 対戦データのキー
-     * @param {*} toObj 更新内容
-     */
-    updateTaisen(keyTaisen, toObj) {
-        const update_item = ref(this.db, "janken_taisen/" + keyTaisen);
-        update(update_item, toObj)
     }
 
     addChoice(keyTaisen, turn, keyPlayer, name, choice, choiceVal, winVS) {
@@ -185,23 +239,6 @@ class FirebaseMngr {
         };
         const newChoiceRef = push(this.dbRefChoice);
         set(newChoiceRef, choiceObj);
-    }
-
-    /**
-     * ラウンドを進める
-     * 初期値は0
-     */
-    increaseRound(){
-        update(this.dbRefRounds, { round: ++this.#round });
-    }
-
-    /**
-     * 罰ゲームを更新する。updateイベントが拾いもれるケースがあったので、remove, setでaddで拾ってみる。
-     * @param {string} batsuGame 罰ゲーム
-     */
-    replaceBatsuGame(batsuGame){
-        remove(this.#dbRefBatsuGame);
-        set(this.#dbRefBatsuGame, { batsuGame: batsuGame });
     }
 }
 

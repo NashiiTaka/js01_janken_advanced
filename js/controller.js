@@ -18,7 +18,7 @@ $(`#btnRegisterName`).on('click', () => {
   $('#txtName').prop('disabled', true);
 
   // DBへのユーザーの追加処理
-  fb.addPlayer(inputVal, jdm.round, null);
+  fb.addPlayer(inputVal, jdm.round == 0 ? 1 : jdm.round, null);
 });
 
 // 罰ゲーム確定時の処理 : 全員に罰ゲーム内容を共有する。
@@ -38,28 +38,29 @@ $("#btnReset").on('click', () => {
   fb.removeAll();
 });
 
-// 締切ボタン押下
+// ラウンド締切ボタン押下 : ラウンド更新処理のキック
 $("#btnCloseRound").on('click', async () => {
   console.log('clicked: btnCloseEntry');
   closeRound();
 });
-
 // ラウンド締切処理 : 対象ユーザーを特定, 対戦組合せの作成
 async function closeRound() {
-  fb.increaseRound();
+  fb.updateRound(jdm.round + 1);
 }
 
 // ラウンド進行時の処理 : 対戦の作成, 各種表示項目の更新
 fb.setOnChildChanged(fb.dbRefRounds, async (data) => {
   // console.log('setOnChildChanged: fb.dbRefRounds');
   $('#kechaku-su').html(0);
-  const newRound = data.val();
-  jdm.round = newRound;
-  $('#current-round').html(newRound);
+  jdm.round = data.val();
+  $('#current-round').html(jdm.round);
 
   // 以下の対戦追加処理は、管理者ユーザーのブラウザのみで実行する。
   if (!jdm.isPlayerAdmin) { return; }
-  $("#btnCloseRound").val('R' + newRound + ' 終了');
+  $("#btnCloseRound").val(`R${jdm.round}終了`);
+
+  // 前ラウンドの未対戦のユーザーは双方を負け扱いとする。
+  fb.updateTaisenUnexecuted(jdm.round - 1);
 
   // 対象ユーザーを抽出
   const arrPlayers = (await fb.getPlayers(jdm.round)).map((v) => v.val());
@@ -106,7 +107,6 @@ fb.setOnChildAdded(fb.dbRefPlayers, (data) => {
   // このデータを自データとして管理オブジェクトに登録する。
   if ((
     player.name == $("#txtName").val().trim()
-    // || $("#txtName").val().trim() == '' && player.name == 'なっしー' // デバッグ ページリロード時はテキストボックスは空白になり、meが設定できないため空白時はなっしーにしとく。
   ) && player.round == 1 && jdm.playerMe == null
   ) {
     jdm.playerMe = data;
@@ -148,7 +148,7 @@ fb.setOnChildAdded(fb.dbRefTaisen, async (data) => {
           $(`#player-${playerData.key}-2`).removeClass('taisen-bottom-row');
           $(`#player-${playerData.key}-1`).addClass('taisen-bottom-row');
         }
-        if($(`#player-${playerData.key}-2`).hasClass('taisen-all-bottom-row')){
+        if ($(`#player-${playerData.key}-2`).hasClass('taisen-all-bottom-row')) {
           $(`#player-${playerData.key}-2`).removeClass('taisen-all-bottom-row');
           $(`#player-${playerData.key}-1`).addClass('taisen-all-bottom-row');
         }
@@ -160,7 +160,7 @@ fb.setOnChildAdded(fb.dbRefTaisen, async (data) => {
           $(`#player-${playerData.key}-1`).removeClass('taisen-bottom-row');
           $(`#player-${playerData.key}-2`).addClass('taisen-bottom-row');
         }
-        if($(`#player-${playerData.key}-1`).hasClass('taisen-all-bottom-row')){
+        if ($(`#player-${playerData.key}-1`).hasClass('taisen-all-bottom-row')) {
           $(`#player-${playerData.key}-1`).removeClass('taisen-all-bottom-row');
           $(`#player-${playerData.key}-2`).addClass('taisen-all-bottom-row');
         }
@@ -342,19 +342,31 @@ function taisenResultUpd(keyTaisen, keyWinnerPlayer) {
   );
 }
 
-// 
+// 対戦結果更新時の処理
+// ここに至るのは勝負完了後、ラウンド締切に夜双方敗退
 fb.setOnChildChanged(fb.dbRefTaisen, (data) => {
   const keyTaisen = data.key;
   const taisen = data.val();
   const keyOpponentPlayer = taisen.keyWinnerPlayer == taisen.originalKeyPlayerA ? taisen.originalKeyPlayerB : taisen.originalKeyPlayerA;
 
-  $(`#taisen-${keyTaisen}-${taisen.keyWinnerPlayer}`).html('○').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
-  $(`#taisen-${keyTaisen}-${keyOpponentPlayer}`).html('×').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
-  $(`.player-${keyOpponentPlayer}`).addClass('looser').attr('lose-round', taisen.round);
+  // 対戦締切 or ラウンド数が異なっている場合は、双方を負けとする。
+  if (taisen.unexecutedTaisen || jdm.round != taisen.round) {
+    $(`#taisen-${keyTaisen}-${taisen.originalKeyPlayerA}`).html('×').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
+    $(`#taisen-${keyTaisen}-${taisen.originalKeyPlayerB}`).html('×').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
+    $(`.player-${taisen.originalKeyPlayerA}`).addClass('looser').attr('lose-round', taisen.round);
+    $(`.player-${taisen.originalKeyPlayerB}`).addClass('looser').attr('lose-round', taisen.round);
+  } else {
+    $(`#taisen-${keyTaisen}-${taisen.keyWinnerPlayer}`).html('○').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
+    $(`#taisen-${keyTaisen}-${keyOpponentPlayer}`).html('×').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
+    $(`.player-${keyOpponentPlayer}`).addClass('looser').attr('lose-round', taisen.round);
+  }
 
   // 決着数をインクリメント
   jdm.increaseNumOfKechakuByRounds(taisen.round);
-  $('#kechaku-su').html(jdm.getNumOfKechakuByRounds(taisen.round));
+  // 対戦のラウンドと現在ラウンドが同じ場合は、ラウンドを進める
+  if (taisen.round == jdm.round) {
+    $('#kechaku-su').html(jdm.getNumOfKechakuByRounds(jdm.round));
+  }
 });
 
 // 星のエフェクトを停止する関数
@@ -396,32 +408,32 @@ const API_KEY = '';
 const URL = "https://api.openai.com/v1/chat/completions";
 
 function reply() {
-    var text = '宴会でみんなが楽しめる罰ゲームを、ランダムに一つだけ教えて。ゲームの内容は不要で、負けた時に行わなければならない罰ゲームだけに絞って回答ください。';
-    async function getResponse() {
-        try {
-            const response = await axios.post(
-                URL,
-                {
-                    "model": "gpt-3.5-turbo",
-                    "messages": [
-                        { "role": "user", "content": text }
-                    ]
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${API_KEY}`,
-                    },
-                }
-            );
-            var chatgpt_response = response.data.choices[0].message.content;
-            $("#batsu-game").val(chatgpt_response);
-        } catch (error) {
-            console.log(error);
-            alert('エラー発生：' + error.message + '\n429 = Too Many Requests\n\n try again!');
-        } finally{
-          $('#btnGenBatsu').prop('disabled', false);
+  var text = '宴会でみんなが楽しめる罰ゲームを、ランダムに一つだけ教えて。ゲームの内容は不要で、負けた時に行わなければならない罰ゲームだけに絞って回答ください。';
+  async function getResponse() {
+    try {
+      const response = await axios.post(
+        URL,
+        {
+          "model": "gpt-3.5-turbo",
+          "messages": [
+            { "role": "user", "content": text }
+          ]
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${API_KEY}`,
+          },
         }
+      );
+      var chatgpt_response = response.data.choices[0].message.content;
+      $("#batsu-game").val(chatgpt_response);
+    } catch (error) {
+      console.log(error);
+      alert('エラー発生：' + error.message + '\n429 = Too Many Requests\n\n try again!');
+    } finally {
+      $('#btnGenBatsu').prop('disabled', false);
     }
-    getResponse();
+  }
+  getResponse();
 }

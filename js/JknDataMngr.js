@@ -6,7 +6,7 @@ import fb from './FirebaseMngr.js';
  * @see https://qiita.com/NeGI1009/items/f8b17d856a4b15b1ecbc
  */
 class JknDataMngr {
-    #iRound = 1;
+    #iRound = 0;
     #playerMe = null;
     #playersRounds = {};
     #numOfTaisenByRounds = {};
@@ -189,6 +189,10 @@ class JknDataMngr {
         );
     }
 
+    /**
+     * 対戦を実行する。。。この操作はcontrollerだよなぁ。 TODO: 現在ラウンドと異なる場合はUserAddは不可。締切済みで負けな旨を出力。
+     * @returns string 勝ち、負け、あいこ
+     */
     execTaisen() {
         if (!this.isBothChoiceReady) { throw new Error('双方の手が確定していません。'); }
 
