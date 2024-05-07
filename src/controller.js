@@ -380,9 +380,9 @@ fb.setOnChildChanged(fb.dbRefTaisen, (data) => {
 });
 
 // 星のエフェクトを停止する関数
-function stopStars() {
-  $('.star').remove();
-}
+// function stopStars() {
+//   $('.star').remove();
+// }
 
 function startStars(n) {
   fallAnimation(n, "star", "★");
