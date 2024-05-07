@@ -8,7 +8,7 @@ function App() {
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           Hello World from React!<br/>
-          Commit & Deploy Test ver2!
+          Commit & Deploy Test ver3!
         </p>
       </header>
     </div>
