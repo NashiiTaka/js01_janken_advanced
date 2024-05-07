@@ -27,7 +27,7 @@ $(`#btnRegisterName`).on('click', () => {
   $('#txtName').prop('disabled', true);
 
   // DBへのユーザーの追加処理
-  fb.addPlayer(inputVal, jdm.round == 0 ? 1 : jdm.round, null);
+  fb.addPlayer(inputVal, jdm.round === 0 ? 1 : jdm.round, null);
 });
 
 // 罰ゲーム確定時の処理 : 全員に罰ゲーム内容を共有する。
@@ -77,7 +77,7 @@ fb.setOnChildChanged(fb.dbRefRounds, async (data) => {
   if (arrPlayers.length % 2 !== 0) {
     arrPlayers.push({
       originalKeyPlayer: null,
-      name: arrPlayers.length == 1 ? '優勝' : '不戦勝'
+      name: arrPlayers.length === 1 ? '優勝' : '不戦勝'
     });
   }
 
@@ -116,7 +116,7 @@ fb.setOnChildAdded(fb.dbRefPlayers, (data) => {
   // このデータを自データとして管理オブジェクトに登録する。
   if ((
     player.name === $("#txtName").val().trim()
-  ) && player.round === 1 && jdm.playerMe == null
+  ) && player.round === 1 && jdm.playerMe === null
   ) {
     jdm.playerMe = data;
   }
@@ -146,13 +146,13 @@ fb.setOnChildAdded(fb.dbRefTaisen, async (data) => {
   const taisen = data.val();
 
   // ラウンド内で初めての対戦追加の場合、テーブルヘッダ行のラウンドを追加する。対戦のセルを追加する。
-  if (jdm.getNumOfTaisenByRounds(jdm.round) == 0) {
+  if (jdm.getNumOfTaisenByRounds(jdm.round) === 0) {
     $('#tbl-header').append(`<th>R${jdm.round}</th>`);
     for (const playerData of jdm.getPlayers(1)) {
       const loseRound = $(`.player-${playerData.key}`).hasClass('looser') ? parseInt($(`.player-${playerData.key}`).attr('lose-round')) : null;
 
       if (loseRound) {
-        $(`#player-${playerData.key}-1`).append(`<td class="bottom-cell" rowspan="2">${loseRound == jdm.round - 1 ? `R${loseRound}&nbsp;敗退` : '-'}</td>`);
+        $(`#player-${playerData.key}-1`).append(`<td class="bottom-cell" rowspan="2">${loseRound === jdm.round - 1 ? `R${loseRound}&nbsp;敗退` : '-'}</td>`);
 
         if ($(`#player-${playerData.key}-2`).hasClass('taisen-bottom-row')) {
           $(`#player-${playerData.key}-2`).removeClass('taisen-bottom-row');
@@ -184,20 +184,20 @@ fb.setOnChildAdded(fb.dbRefTaisen, async (data) => {
 
   // 対戦相手を各プレイヤー行に代入。それぞれのセルへのアクセス用のパラメータを設定。
   // 結果には、id: taisen-${keyTaisen}-${keyPlayer}でアクセスする。
-  if (taisen.originalKeyPlayerA == null || taisen.originalKeyPlayerB == null) {
+  if (taisen.originalKeyPlayerA === null || taisen.originalKeyPlayerB === null) {
     const tgtKey = taisen.originalKeyPlayerA || taisen.originalKeyPlayerB;
     const opponentValue = taisen.originalKeyPlayerA ? taisen.namePlayerB : taisen.namePlayerA;
     $(`.player-${tgtKey}`).find(`.td-opponent.round-${jdm.round}`).html(opponentValue);
     $(`.player-${tgtKey}`).find(`.td-result.round-${jdm.round}`).attr('id', `taisen-${keyTaisen}-${tgtKey}`);
 
-    if (opponentValue == '不戦勝') {
+    if (opponentValue === '不戦勝') {
       // 不戦勝の勝者が自分であった場合、対戦レコードを更新する。
-      if (jdm.playerMe && (tgtKey == jdm.playerMe.key)) {
+      if (jdm.playerMe && (tgtKey === jdm.playerMe.key)) {
         jdm.addPlayerMeToNextRound();
         taisenResultUpd(keyTaisen, tgtKey);
         startStars(50);
       }
-    } else if (opponentValue == '優勝') {
+    } else if (opponentValue === '優勝') {
       const winner = taisen.originalKeyPlayerA ? taisen.namePlayerA : taisen.namePlayerB;
       startStars(200);
       $('#your-status-info').html(`${winner}&nbsp;優勝！`).show().fadeOut(300).fadeIn(300).fadeOut(300).fadeIn(300).fadeOut(300).fadeIn(300);
@@ -210,15 +210,15 @@ fb.setOnChildAdded(fb.dbRefTaisen, async (data) => {
   }
 
   // 対戦プレイヤーのいずれかに自分が設定されている場合、その対戦を現在の対戦として対戦キーを保持しておく。
-  if (jdm.playerMe && (taisen.originalKeyPlayerA == jdm.playerMe.key || taisen.originalKeyPlayerB == jdm.playerMe.key)) {
+  if (jdm.playerMe && (taisen.originalKeyPlayerA === jdm.playerMe.key || taisen.originalKeyPlayerB === jdm.playerMe.key)) {
     jdm.currentKeyTaisen = keyTaisen;
-    const opponentName = taisen.originalKeyPlayerA == jdm.playerMe.key ? taisen.namePlayerB : taisen.namePlayerA;
+    const opponentName = taisen.originalKeyPlayerA === jdm.playerMe.key ? taisen.namePlayerB : taisen.namePlayerA;
     $('#your-status-info').hide();
     $('#opponent-name').html(opponentName);
-    if (opponentName != '不戦勝' && opponentName != '優勝') {
+    if (opponentName !== '不戦勝' && opponentName !== '優勝') {
       $('.choices').show();
       $('#youropponent').html(`vs ${opponentName}!`).show().fadeOut(2000);
-    } else if (opponentName == '不戦勝') {
+    } else if (opponentName === '不戦勝') {
       $('#youropponent').html(`${opponentName}!`).show();
       await sleep(2000);
       $('#youropponent').fadeOut(1000);
@@ -257,15 +257,15 @@ $(`.choice`).on('click', (elem) => {
 // 手選択時の処理
 fb.setOnChildAdded(fb.dbRefChoice, (data) => {
   // console.log('onChildAdded / Choice');
-  const keyChoice = data.key;
+  // const keyChoice = data.key;
   const choice = data.val();
 
   // 自分と同じ対戦、ターン、nameが自分でないものが相手の選択データ
   if (
-    choice.keyTaisen == jdm.currentKeyTaisen
-    && choice.turn == jdm.turn
+    choice.keyTaisen === jdm.currentKeyTaisen
+    && choice.turn === jdm.turn
   ) {
-    if (choice.keyPlayer == jdm.playerMe.key) {
+    if (choice.keyPlayer === jdm.playerMe.key) {
       jdm.myChoice = data;
       $('#my-status').html('お待ちください').removeClass('prompt').addClass('info');
     } else {
@@ -316,7 +316,7 @@ async function execTaisen() {
     $('#aikodesyo span').hide();
   } else {
     $('#kekka').html(ret).show().fadeOut(3000);
-    if (ret == '勝ち') {
+    if (ret === '勝ち') {
       startStars(50);
     } else {
       startSkulls(50);
@@ -332,7 +332,7 @@ async function execTaisen() {
     $('.choices').fadeOut(1000);
     await sleep(1000);
 
-    if (ret == '勝ち') {
+    if (ret === '勝ち') {
       $('#your-status-info').show();
     } else {
       $('#your-status-info').html('負けました・・・').show();
@@ -357,10 +357,10 @@ function taisenResultUpd(keyTaisen, keyWinnerPlayer) {
 fb.setOnChildChanged(fb.dbRefTaisen, (data) => {
   const keyTaisen = data.key;
   const taisen = data.val();
-  const keyOpponentPlayer = taisen.keyWinnerPlayer == taisen.originalKeyPlayerA ? taisen.originalKeyPlayerB : taisen.originalKeyPlayerA;
+  const keyOpponentPlayer = taisen.keyWinnerPlayer === taisen.originalKeyPlayerA ? taisen.originalKeyPlayerB : taisen.originalKeyPlayerA;
 
   // 対戦締切 or ラウンド数が異なっている場合は、双方を負けとする。
-  if (taisen.unexecutedTaisen || jdm.round != taisen.round) {
+  if (taisen.unexecutedTaisen || jdm.round !== taisen.round) {
     $(`#taisen-${keyTaisen}-${taisen.originalKeyPlayerA}`).html('×').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
     $(`#taisen-${keyTaisen}-${taisen.originalKeyPlayerB}`).html('×').fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500).fadeOut(500).fadeIn(500);
     $(`.player-${taisen.originalKeyPlayerA}`).addClass('looser').attr('lose-round', taisen.round);
@@ -374,7 +374,7 @@ fb.setOnChildChanged(fb.dbRefTaisen, (data) => {
   // 決着数をインクリメント
   jdm.increaseNumOfKechakuByRounds(taisen.round);
   // 対戦のラウンドと現在ラウンドが同じ場合は、ラウンドを進める
-  if (taisen.round == jdm.round) {
+  if (taisen.round === jdm.round) {
     $('#kechaku-su').html(jdm.getNumOfKechakuByRounds(jdm.round));
   }
 });
@@ -426,7 +426,7 @@ function reply() {
         {
           "model": "gpt-3.5-turbo",
           "messages": [
-            { "role": "user", "content": text }
+            { "role": "user", "content": text } 
           ]
         },
         {

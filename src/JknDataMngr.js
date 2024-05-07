@@ -22,6 +22,8 @@ class JknDataMngr {
      * コンストラクタ、プレイヤー名を引数に取り、各変数を初期化する。
      */
     constructor() {
+        // Lint対応
+        this.#isAiko = false;
     }
 
     /**
@@ -199,14 +201,14 @@ class JknDataMngr {
 
         let ret = null;
 
-        if (this.myChoice.val().choice == this.opponentChoice.val().choice) {
+        if (this.myChoice.val().choice === this.opponentChoice.val().choice) {
             ret = "あいこ";
             this.increaseTurn();
             this.myChoice = null;
             this.opponentChoice = null;
             this.#isAiko = true;
             this.chosenCurrentTurn = false;
-        } else if (this.myChoice.val().winVS == this.opponentChoice.val().choice) {
+        } else if (this.myChoice.val().winVS === this.opponentChoice.val().choice) {
             ret = '勝ち';
 
             // 次のラウンドにユーザ登録する。
