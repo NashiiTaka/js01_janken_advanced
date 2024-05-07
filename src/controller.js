@@ -1,6 +1,15 @@
+// ライブラリインポート
+import $ from 'jquery'; // npm install jquery
+import axios from 'axios'; // npm install axios
+
 // クラスインポート
-import jdm from './JknDataMngr.js';
-import fb from './FirebaseMngr.js';
+// import jdm from './JknDataMngr.js';
+// import fb from './FirebaseMngr.js';
+
+import JknDataMngr from './JknDataMngr.js';
+import FirebaseMngr from './FirebaseMngr.js';
+const jdm = new JknDataMngr();
+const fb = new FirebaseMngr();
 
 // ユーザー登録押下時の処理：DBに登録をかける
 $(`#btnRegisterName`).on('click', () => {
@@ -29,7 +38,7 @@ $('#btnBatsuKakutei').on('click', () => {
 // 罰ゲーム更新時の処理 
 fb.setOnChildAdded(fb.dbRefBatsuGame, (data) => {
   console.log('×ゲーム変更');
-  $('#batsu-game').val(data.val());
+  $('#batsu-game').val(data.val().batsuGame);
 });
 
 // 全データ削除処理
@@ -52,7 +61,7 @@ async function closeRound() {
 fb.setOnChildChanged(fb.dbRefRounds, async (data) => {
   // console.log('setOnChildChanged: fb.dbRefRounds');
   $('#kechaku-su').html(0);
-  jdm.round = data.val();
+  jdm.round = data.val().round;
   $('#current-round').html(jdm.round);
 
   // 以下の対戦追加処理は、管理者ユーザーのブラウザのみで実行する。
@@ -106,13 +115,14 @@ fb.setOnChildAdded(fb.dbRefPlayers, (data) => {
   // 1ラウンド目のプレイヤー追加時、追加された名前が自入力分、かつ管理オブジェクトに自分が未登録の場合、
   // このデータを自データとして管理オブジェクトに登録する。
   if ((
-    player.name == $("#txtName").val().trim()
-  ) && player.round == 1 && jdm.playerMe == null
+    player.name === $("#txtName").val().trim()
+  ) && player.round === 1 && jdm.playerMe == null
   ) {
     jdm.playerMe = data;
   }
   // 管理者の場合は管理者用のボタンを表示する。
-  if (jdm.isPlayerAdmin) {
+  if (jdm.isPlayerAdmin && player.round === 1) {
+    fb.initializeRound();
     $('#btnReset').show();
     $('#btnCloseRound').show();
     $('#batsu-game').prop('disabled', false);
@@ -121,7 +131,7 @@ fb.setOnChildAdded(fb.dbRefPlayers, (data) => {
   }
 
   // 1ラウンド目の時は、勝敗テーブルのエントリー名列を作成していく。
-  if (player.round == 1) {
+  if (player.round === 1) {
     // 最終行以外の最終行、上クラスを削除。last-childを試したがどうしても特定クラスの最後の要素を選択できなかった。
     tbl.find('tr.taisen-all-top-row').removeClass('taisen-all-top-row');
     tbl.find('tr.taisen-all-bottom-row').removeClass('taisen-all-bottom-row');
@@ -294,7 +304,7 @@ async function execTaisen() {
 
   const ret = jdm.execTaisen();
 
-  if (ret == 'あいこ') {
+  if (ret === 'あいこ') {
     $('#kekka').html(ret).show().fadeOut(2000);
     await sleep(2000);
     $(`.choice`).removeClass('chosen').fadeOut(500).fadeIn(500);

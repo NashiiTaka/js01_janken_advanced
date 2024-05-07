@@ -1,4 +1,5 @@
-import fb from './FirebaseMngr.js';
+import FirebaseMngr from './FirebaseMngr.js';
+const fb = new FirebaseMngr();
 
 /**
  * ジャンケンに関するあらゆるデータを管理する
@@ -107,7 +108,7 @@ class JknDataMngr {
      * @returns bool プレイヤーは管理者である
      */
     get isPlayerAdmin() {
-        return this.#playerMe ? this.#playerMe.val().name == 'なっしー' : false;
+        return this.#playerMe ? this.#playerMe.val().name === 'なっしー' : false;
     }
 
     /**
@@ -233,4 +234,6 @@ class JknDataMngr {
 
 // インポート先では単一のインスタンスが参照される。
 // このことにより、シングルトンを実現する
-export default new JknDataMngr();
+// const _instance = new JknDataMngr();
+// export default _instance;
+export default JknDataMngr;
