@@ -1,5 +1,4 @@
-import FirebaseMngr from './FirebaseMngr.js';
-const fb = new FirebaseMngr();
+import fb from './FirebaseMngr';
 
 /**
  * ジャンケンに関するあらゆるデータを管理する
@@ -18,6 +17,7 @@ class JknDataMngr {
     #myChoice = null;
     #opponentChoice = null;
     #isAiko = false;
+    #authUser = null;
     /**
      * コンストラクタ、プレイヤー名を引数に取り、各変数を初期化する。
      */
@@ -25,6 +25,34 @@ class JknDataMngr {
         // Lint対応
         this.#isAiko = false;
     }
+
+    get authUser() {
+        return this.#authUser;
+    }
+    set authUser(user) {
+        return this.#authUser = user;
+    }
+
+    /**
+     * プレイヤー名
+     */
+    get playerMe() {
+        return this.#playerMe;
+    }
+    /**
+     * プレイヤー名
+     */
+    set playerMe(player) {
+        this.#playerMe = player;
+    }
+    /**
+     * プレイヤーは管理者である
+     * @returns bool プレイヤーは管理者である
+     */
+    get isPlayerAdmin() {
+        return this.authUser ? this.authUser.email === 'lewin550@gmail.com' : false;
+    }
+
 
     /**
      * 現在のラウンド数
@@ -91,26 +119,6 @@ class JknDataMngr {
     increaseNumOfKechakuByRounds(roundNo) {
         this.#numOfKechakuByRounds[roundNo] ||= 0;
         return ++this.#numOfKechakuByRounds[roundNo];
-    }
-
-    /**
-     * プレイヤー名
-     */
-    get playerMe() {
-        return this.#playerMe;
-    }
-    /**
-     * プレイヤー名
-     */
-    set playerMe(player) {
-        this.#playerMe = player;
-    }
-    /**
-     * プレイヤーは管理者である
-     * @returns bool プレイヤーは管理者である
-     */
-    get isPlayerAdmin() {
-        return this.#playerMe ? this.#playerMe.val().name === 'なっしー' : false;
     }
 
     /**
@@ -189,6 +197,7 @@ class JknDataMngr {
             this.playerMe.val().name
             , this.round + 1
             , this.playerMe.val().originalKeyPlayer
+            , this.authUser.uid
         );
     }
 
@@ -236,6 +245,6 @@ class JknDataMngr {
 
 // インポート先では単一のインスタンスが参照される。
 // このことにより、シングルトンを実現する
-// const _instance = new JknDataMngr();
-// export default _instance;
-export default JknDataMngr;
+const _instance = new JknDataMngr();
+export default _instance;
+// export default JknDataMngr;

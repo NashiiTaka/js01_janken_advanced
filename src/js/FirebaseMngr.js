@@ -1,27 +1,5 @@
-import * as fb from 'firebase/app';
+import app from './firebaseAppIns';
 import * as fs from 'firebase/firestore';
-// lewin550
-const firebaseConfig = {
-    apiKey: "AIzaSyBYHC7mgehcnO58aE8PQYJqyxUSToZGioo",
-    authDomain: "sample-bdcb1.firebaseapp.com",
-    databaseURL: "https://sample-bdcb1-default-rtdb.firebaseio.com",
-    projectId: "sample-bdcb1",
-    storageBucket: "sample-bdcb1.appspot.com",
-    messagingSenderId: "525120777563",
-    appId: "1:525120777563:web:6be05da75085ec7aa37e7e"
-};
-
-// hasukolewin
-// const firebaseConfig = {
-//     apiKey: "AIzaSyAMpISjQvK3j8l4fuAMrbn3dhHgt4Ou1PU",
-//     authDomain: "test-52d4b.firebaseapp.com",
-//     projectId: "test-52d4b",
-//     storageBucket: "test-52d4b.appspot.com",
-//     messagingSenderId: "1026117556559",
-//     appId: "1:1026117556559:web:530f69015903f606584d3a"
-// };
-
-const app = fb.initializeApp(firebaseConfig);
 
 /**
  * Firebaseとの接続を管理する。
@@ -144,14 +122,21 @@ class FirebaseMngr {
      * @param {string} name 
      * @param {number} round 
      */
-    async addPlayer(name, round, originalKeyPlayer) {
+    async addPlayer(name, round, originalKeyPlayer, authUid) {
+        const q = fs.query(this.dbRefPlayers, fs.where('authUid', '==', authUid), fs.where('round', '==', round));
+        const querySnapshot = await fs.getDocs(q);
+        if(querySnapshot.size !== 0){
+            return;
+        }
+
         // オリジナルキーがない = 初回登録として、IDを発行して登録を行う。
         if (!originalKeyPlayer) {
             const refId = await fs.addDoc(this.#dbRefCreateId, { a: null });
             fs.setDoc(fs.doc(this.db, 'janken_players', refId.id), {
                 name: name,
                 round: round,
-                originalKeyPlayer: refId.id
+                originalKeyPlayer: refId.id,
+                authUid: authUid
             }
             );
             // オリジナルキーが存在する場合は、2回目以降としてデータの登録を行う。
@@ -159,7 +144,8 @@ class FirebaseMngr {
             fs.addDoc(this.dbRefPlayers, {
                 name: name,
                 round: round,
-                originalKeyPlayer: originalKeyPlayer
+                originalKeyPlayer: originalKeyPlayer,
+                authUid: authUid
             }
             );
         }
@@ -344,6 +330,6 @@ class FirebaseMngr {
 // このことにより、シングルトンを実現する
 // const _instance = new FirebaseMngr();
 // export default _instance;
-// const _instance = new FirebaseMngr();
-// export default _instance;
-export default FirebaseMngr;
+const _instance = new FirebaseMngr();
+export default _instance;
+// export default FirebaseMngr;

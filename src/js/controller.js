@@ -6,10 +6,8 @@ import axios from 'axios'; // npm install axios
 // import jdm from './JknDataMngr.js';
 // import fb from './FirebaseMngr.js';
 
-import JknDataMngr from './JknDataMngr.js';
-import FirebaseMngr from './FirebaseMngr.js';
-const jdm = new JknDataMngr();
-const fb = new FirebaseMngr();
+import jdm from './JknDataMngr';
+import fb from './FirebaseMngr';
 
 // ユーザー登録押下時の処理：DBに登録をかける
 $(`#btnRegisterName`).on('click', () => {

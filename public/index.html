@@ -1,21 +1,19 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="Web site created using create-react-app" />
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+  <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
       Only files inside the `public` folder can be referenced from the HTML.
@@ -25,99 +23,66 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
 
-    <!-- 以下を追記・変更 -->
-    <script src="js/jquery-2.1.3.min.js"></script>
-    <link rel="stylesheet" href="css/reset.css">
-    <link rel="stylesheet" href="css/stylesheet.css">
-    <title>じゃんけん on React</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
+  <!-- 以下を追記・変更 -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/stylesheet.css">
+  <title>じゃんけん on React</title>
+</head>
 
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
 
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-
-    <div class="wrapper-super">
-      <a href="janken_tpl.html">初回お題に対するコーディング例、解説コメントつき</a>
-      <a href="janken_tpl_witout_comment.html">コメントなし</a>
-      pvp
+  <div id="root"></div>
   
-      <header>
-        <h1>じゃんけん</h1>
-      </header>
-  
-      <main id="main">
-        <div>
-          名前を入力してください。
-          <input type="text" id="txtName"><input id="btnRegisterName" type="submit" value="登録">
-          <input id="btnCloseRound" type="submit" value="エントリー締切" class="hide">
-          <input id="btnReset" type="submit" value="データリセット" class="hide">
-          <!-- style="display: none;" -->
-          <div class="batsu-wrapper">
-            バツゲーム<input type="text" id="batsu-game" disabled>
-            <input id="btnGenBatsu" type="submit" value="自動生成" class="hide">
-            <input id="btnBatsuKakutei" type="submit" value="確定" class="hide">
-          </div>
-        </div>
-  
-        <div class="control">
-          <div class="current-info">
-            <dl class="dl_table">
-              <dt>現在R</dt>
-              <dd id="current-round">1</dd>
-              <dt>対戦数</dt>
-              <dd id="taisen-su">0</dd>
-              <dt>決着数</dt>
-              <dd id="kechaku-su">0</dd>
-            </dl>
-          </div>
-          <div class="choices-wrapper">
-            <p class="progress" id="your-status-info">お待ちください</p>
-            <p class="hide progress" id="youropponent"></p>
-            <p class="hide progress" id="jankenpon"><span class="hide">じゃん</span><span
-                class="hide">&nbsp;&nbsp;けん</span><span class="hide">&nbsp;&nbsp;ぽん！</span></p>
-            <p class="hide progress" id="aikodesyo"><span class="hide">あい</span><span
-                class="hide">&nbsp;&nbsp;こで</span><span class="hide">&nbsp;&nbsp;しょ！</span></p>
-            <p class="hide progress" id="kekka"></p>
-            <div class="choices hide" id="choices">
-              <p>あなたの手&nbsp;&nbsp;<span class="prompt" id="my-status">選んでください！</span></p>
-              <ul>
-                <li class="choice" id="gu_btn" value="0">グー</li>
-                <li class="choice" id="par_btn" value="1">パー</li>
-                <li class="choice" id="cho_btn" value="2">チョキ</li>
-              </ul>
-              <p><span id="opponent-name">相手</span>の手&nbsp;&nbsp;<span class="info hide"
-                  id="opponent-status">決まりました！</span></p>
-              <ul>
-                <li class="choice-opponent-default" id="notyet_opponent_btn" value="">まだ</li>
-                <li class="choice-opponent hide" id="gu_opponent_btn" value="0">グー</li>
-                <li class="choice-opponent hide" id="par_opponent_btn" value="1">パー</li>
-                <li class="choice-opponent hide" id="cho_opponent_btn" value="2">チョキ</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-  
-        <div>
-          <p>対戦表</p>
-          <table id="tbl" class="taisen-table">
-            <tr id="tbl-header">
-              <th>No</th>
-              <th>名前</th>
-            </tr>
-          </table>
-        </div>
-      </main>
-  
-      <footer></footer>
+  <div class="control">
+    <div class="current-info">
+      <dl class="dl_table">
+        <dt>現在R</dt>
+        <dd id="current-round">1</dd>
+        <dt>対戦数</dt>
+        <dd id="taisen-su">0</dd>
+        <dt>決着数</dt>
+        <dd id="kechaku-su">0</dd>
+      </dl>
     </div>
-  </body>
+    <div class="choices-wrapper">
+      <p class="progress" id="your-status-info">お待ちください</p>
+      <p class="hide progress" id="youropponent"></p>
+      <p class="hide progress" id="jankenpon"><span class="hide">じゃん</span><span class="hide">&nbsp;&nbsp;けん</span><span
+          class="hide">&nbsp;&nbsp;ぽん！</span></p>
+      <p class="hide progress" id="aikodesyo"><span class="hide">あい</span><span class="hide">&nbsp;&nbsp;こで</span><span
+          class="hide">&nbsp;&nbsp;しょ！</span></p>
+      <p class="hide progress" id="kekka"></p>
+      <div class="choices hide" id="choices">
+        <p>あなたの手&nbsp;&nbsp;<span class="prompt" id="my-status">選んでください！</span></p>
+        <ul>
+          <li class="choice" id="gu_btn" value="0">グー</li>
+          <li class="choice" id="par_btn" value="1">パー</li>
+          <li class="choice" id="cho_btn" value="2">チョキ</li>
+        </ul>
+        <p><span id="opponent-name">相手</span>の手&nbsp;&nbsp;<span class="info hide" id="opponent-status">決まりました！</span>
+        </p>
+        <ul>
+          <li class="choice-opponent-default" id="notyet_opponent_btn" value="">まだ</li>
+          <li class="choice-opponent hide" id="gu_opponent_btn" value="0">グー</li>
+          <li class="choice-opponent hide" id="par_opponent_btn" value="1">パー</li>
+          <li class="choice-opponent hide" id="cho_opponent_btn" value="2">チョキ</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <p>対戦表</p>
+    <table id="tbl" class="taisen-table">
+      <tr id="tbl-header">
+        <th>No</th>
+        <th>名前</th>
+      </tr>
+    </table>
+  </div>
+
+  <footer></footer>
+</body>
+
 </html>
