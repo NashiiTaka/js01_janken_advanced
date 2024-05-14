@@ -1,4 +1,5 @@
 import fb from './FirebaseMngr';
+import MdlPlayer from './mdl/MdlPlayer';
 
 /**
  * ジャンケンに関するあらゆるデータを管理する
@@ -35,12 +36,14 @@ class JknDataMngr {
 
     /**
      * プレイヤー名
+     * @returns {MdlPlayer}
      */
     get playerMe() {
         return this.#playerMe;
     }
     /**
      * プレイヤー名
+     * @param {MdlPlayer} player
      */
     set playerMe(player) {
         this.#playerMe = player;
@@ -67,20 +70,19 @@ class JknDataMngr {
     /**
      * ラウンド別のユーザーを取得する。
      * @param {number} roundNo ラウンド数
-     * @returns [{key, val()}] ユーザー情報の配列。0件の場合も配列を返却
+     * @returns {Array.<MdlPlayer>} ユーザー情報の配列。0件の場合も配列を返却
      */
     getPlayers(roundNo) {
         this.#playersRounds[roundNo] ||= [];
         return this.#playersRounds[roundNo];
     }
     /**
-     * 
-     * @param {number} roundNo ラウンド数
-     * @param {object} player [{key, val()}] ユーザー情報の配列。
+     * プレイヤーを追加する。
+     * @param {MdlPlayer} mdlPlayer [{key, val()}] ユーザー情報の配列。
      */
-    addPlayer(roundNo, player) {
-        this.#playersRounds[roundNo] ||= [];
-        this.#playersRounds[roundNo].push(player);
+    addPlayer(mdlPlayer) {
+        this.#playersRounds[mdlPlayer._round] ||= [];
+        this.#playersRounds[mdlPlayer._round].push(mdlPlayer);
     }
 
     /**
@@ -190,15 +192,6 @@ class JknDataMngr {
      */
     get isAiko(){
         return this.#isAiko;
-    }
-
-    addPlayerMeToNextRound(){
-        fb.addPlayer(
-            this.playerMe.val().name
-            , this.round + 1
-            , this.playerMe.val().originalKeyPlayer
-            , this.authUser.uid
-        );
     }
 
     /**

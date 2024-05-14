@@ -23,6 +23,10 @@ main {
   margin-top: 10px;
 }
 
+.info-and-taisen-wrapper{
+  display: flex;
+}
+
 #batsu-game{
   width: 60%;
 }
@@ -49,10 +53,6 @@ li {
 .choice:hover {
   background: #0066CC;
   color: #fff;
-}
-
-.control {
-  display: flex;
 }
 
 .current-info {
@@ -137,7 +137,7 @@ td.td-no{
   border-left: 4px solid #a8b7c5;
 }
 
-.taisen-top-row td:last-child , .taisen-bottom-row td:last-child{
+td.right-end{
   border-right: 4px solid #a8b7c5;
 }
 
@@ -145,11 +145,11 @@ td.bottom-cell{
   border-bottom: 4px solid #a8b7c5;
 }
 
-.taisen-all-top-row td:first-child{
+td.left-bottom{
   border-radius: 0 0 0 10px;
 }
 
-.taisen-all-bottom-row td:last-child {
+td.right-bottom {
   border-radius: 0 0 10px 0;
 }
 

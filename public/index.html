@@ -31,58 +31,6 @@
 
 <body>
   <noscript>You need to enable JavaScript to run this app.</noscript>
-
   <div id="root"></div>
-  
-  <div class="control">
-    <div class="current-info">
-      <dl class="dl_table">
-        <dt>現在R</dt>
-        <dd id="current-round">1</dd>
-        <dt>対戦数</dt>
-        <dd id="taisen-su">0</dd>
-        <dt>決着数</dt>
-        <dd id="kechaku-su">0</dd>
-      </dl>
-    </div>
-    <div class="choices-wrapper">
-      <p class="progress" id="your-status-info">お待ちください</p>
-      <p class="hide progress" id="youropponent"></p>
-      <p class="hide progress" id="jankenpon"><span class="hide">じゃん</span><span class="hide">&nbsp;&nbsp;けん</span><span
-          class="hide">&nbsp;&nbsp;ぽん！</span></p>
-      <p class="hide progress" id="aikodesyo"><span class="hide">あい</span><span class="hide">&nbsp;&nbsp;こで</span><span
-          class="hide">&nbsp;&nbsp;しょ！</span></p>
-      <p class="hide progress" id="kekka"></p>
-      <div class="choices hide" id="choices">
-        <p>あなたの手&nbsp;&nbsp;<span class="prompt" id="my-status">選んでください！</span></p>
-        <ul>
-          <li class="choice" id="gu_btn" value="0">グー</li>
-          <li class="choice" id="par_btn" value="1">パー</li>
-          <li class="choice" id="cho_btn" value="2">チョキ</li>
-        </ul>
-        <p><span id="opponent-name">相手</span>の手&nbsp;&nbsp;<span class="info hide" id="opponent-status">決まりました！</span>
-        </p>
-        <ul>
-          <li class="choice-opponent-default" id="notyet_opponent_btn" value="">まだ</li>
-          <li class="choice-opponent hide" id="gu_opponent_btn" value="0">グー</li>
-          <li class="choice-opponent hide" id="par_opponent_btn" value="1">パー</li>
-          <li class="choice-opponent hide" id="cho_opponent_btn" value="2">チョキ</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div>
-    <p>対戦表</p>
-    <table id="tbl" class="taisen-table">
-      <tr id="tbl-header">
-        <th>No</th>
-        <th>名前</th>
-      </tr>
-    </table>
-  </div>
-
-  <footer></footer>
 </body>
-
 </html>

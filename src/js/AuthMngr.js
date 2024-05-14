@@ -1,4 +1,4 @@
-import app from './firebaseAppIns';
+import app from './mdl/firebaseAppIns';
 import * as at from 'firebase/auth';
 
 /**
@@ -13,7 +13,6 @@ class AuthMngr {
     #user;
     #additionalUserInfo;
     #attachedLoginState = false;
-    #loginSateChangeFired = false;
 
     /**
      * コンストラクタ、ネイティブonAuthをハンドルするイベントハンドラを設定する。
@@ -36,7 +35,7 @@ class AuthMngr {
 
         at.onAuthStateChanged(this.#auth, (user) => {
             if (user) {
-                console.log('onAuthStateChanged: Logged In: ' + user.displayName);
+                console.log('AuthMngr: onAuthStateChanged: Logged In: ' + user.displayName);
                 this.#user = user;
                 // ログイン直後ではないため、additionalUserInfoは同じ値化を保証できない為、nullクリアする。
                 this.#additionalUserInfo = null;
@@ -45,7 +44,7 @@ class AuthMngr {
                     v(this.user, this.additionalUserInfo);
                 });
             } else {
-                console.log('onAuthStateChanged: Logged out: ' + (this.user ? this.user.displayName : 'no name'));
+                console.log('AuthMngr: onAuthStateChanged: Logged out: ' + (this.user ? this.user.displayName : 'no name'));
                 this.#isLoggedIn = false;
                 this.#user = null;
                 this.#additionalUserInfo = null;
